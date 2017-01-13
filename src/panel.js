@@ -53,6 +53,7 @@ class Panel
      */
     findSubPanel(x, y)
     {
+        console.log(this);
         for (var subPanel of this.subPanels) {
             if (subPanel.contains(x, y)) {
                 return subPanel;

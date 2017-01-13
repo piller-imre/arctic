@@ -6,6 +6,7 @@ class RedPanel extends Panel
     paint()
     {
         this.context.beginPath();
+        this.context.strokeStyle = "red";
         this.context.moveTo(0, 0);
         this.context.lineTo(this.width, this.height);
         this.context.stroke();
@@ -40,6 +41,7 @@ class GreenPanel extends Panel
     paint()
     {
         this.context.beginPath();
+        this.context.strokeStyle = "green";
         this.context.moveTo(0, 0);
         this.context.lineTo(this.width, this.height);
         this.context.stroke();
