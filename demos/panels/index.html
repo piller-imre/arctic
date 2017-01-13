@@ -1,0 +1,25 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="../../src/style.css">
+    <script type="text/javascript" src="../../src/subpanel.js"></script>
+    <script type="text/javascript" src="../../src/panel.js"></script>
+    <script type="text/javascript" src="../../src/frame.js"></script>
+    <script type="text/javascript" src="../../src/vertical_split.js"></script>
+    <script type="text/javascript" src="panels.js"></script>
+    <script type="text/javascript">
+        var verticalSplit = new VerticalSplit(200);
+        var redPanel = new RedPanel();
+        var greenPanel = new GreenPanel();
+        verticalSplit.setLeftPanel(redPanel);
+        verticalSplit.setRightPanel(greenPanel);
+        var app = verticalSplit;
+    </script>
+</head>
+
+<body onload="onLoad()" onresize="onResize()">
+    <canvas id="canvas" />
+</body>
+
+</html>
+
