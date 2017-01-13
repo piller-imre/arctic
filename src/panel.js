@@ -12,6 +12,7 @@ class Panel
         this.height = 0;
         this.context = null;
         this.subPanels = [];
+        this.selected = null;
     }
 
     /**
@@ -61,6 +62,34 @@ class Panel
     }
 
     /**
+     * Update the focus of the panel.
+     */
+    updateFocus(panel)
+    {
+        if (panel != null && panel != this.selected) {
+            if (this.selected != null) {
+                this.selected.lostFocus();
+            }
+            panel.gotFocus();
+            this.selected = panel;
+        }
+    }
+
+    /**
+     * The panel got the focus.
+     */
+    gotFocus()
+    {
+    }
+
+    /**
+     * The panel lost the focus.
+     */
+    lostFocus()
+    {
+    }
+
+    /**
      * Paint the content of the panel.
      */
     paint()
@@ -81,6 +110,9 @@ class Panel
      */
     keyDown(key)
     {
+        if (this.selected != null) {
+            this.selected.keyDown(key);
+        }
     }
 
     /**
@@ -88,6 +120,9 @@ class Panel
      */
     keyUp(key)
     {
+        if (this.selected != null) {
+            this.selected.keyUp(key);
+        }
     }
 
     /**
@@ -97,6 +132,7 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
+            this.updateFocus(subPanel.panel);
             subPanel.panel.mouseDown(x - subPanel.x, y - subPanel.y);
         }
     }
@@ -108,6 +144,7 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
+            this.updateFocus(subPanel.panel);
             subPanel.panel.mouseUp(x - subPanel.x, y - subPanel.y);
         }
     }
@@ -119,6 +156,7 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
+            this.updateFocus(subPanel.panel);
             subPanel.panel.mouseMove(x - subPanel.x, y - subPanel.y);
         }
     }
@@ -130,6 +168,7 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
+            this.updateFocus(subPanel.panel);
             subPanel.panel.wheelUp(x - subPanel.x, y - subPanel.y);
         }
     }
@@ -141,6 +180,7 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
+            this.updateFocus(subPanel.panel);
             subPanel.panel.wheelDown(x - subPanel.x, y - subPanel.y);
         }
     }
