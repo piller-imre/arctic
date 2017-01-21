@@ -109,6 +109,6 @@ function onResize()
 {
     canvas.width = window.innerWidth - 20;
     canvas.height = window.innerHeight - 20;
-    app.resize(canvas.width, canvas.height);
+    app.resize(0, 0, canvas.width, canvas.height);
 }
 

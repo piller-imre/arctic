@@ -6,9 +6,9 @@ class App extends Panel
     /**
      * Resize the application.
      */
-    resize(width, height)
+    resize(x, y, width, height)
     {
-        Panel.prototype.resize(width, height);
+        super.resize(x, y, width, height);
 
         this.context.beginPath();
         this.context.moveTo(0, 0);

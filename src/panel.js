@@ -8,6 +8,8 @@ class Panel
      */
     constructor()
     {
+        this.x = 0;
+        this.y = 0;
         this.width = 0;
         this.height = 0;
         this.context = null;
@@ -20,10 +22,12 @@ class Panel
      */
     setContext(context)
     {
-        this.context = context;
-        for (var subPanel of this.subPanels) {
-            if (subPanel.panel != null) {
-                subPanel.panel.setContext(context);
+        if (context != null) {
+            this.context = context;
+            for (var subPanel of this.subPanels) {
+                if (subPanel.panel != null) {
+                    subPanel.panel.setContext(context);
+                }
             }
         }
     }
@@ -31,21 +35,21 @@ class Panel
     /**
      * Set the size of the panel.
      */
-    resize(width, height)
+    resize(x, y, width, height)
     {
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
         this.paint();
     }
 
     /**
-     * Add new subpanel to the panel.
+     * Add new subpanel to the current panel.
      */
     addSubPanel(panel)
     {
-        var subPanel = new SubPanel(panel, 0, 0);
-        this.subPanels.push(subPanel);
-        return subPanel;
+        this.subPanels.push(panel);
     }
 
     /**
@@ -53,11 +57,15 @@ class Panel
      */
     findSubPanel(x, y)
     {
-        console.log(this);
         for (var subPanel of this.subPanels) {
-            if (subPanel.contains(x, y)) {
-                return subPanel;
+            var panel = subPanel.findSubPanel(x, y);
+            if (panel != null) {
+                return panel;
             }
+        }
+        if (x >= this.x && y >= this.y
+            && x < this.x + this.width && y < this.y + this.height) {
+            return this;
         }
         return null;
     }
@@ -97,10 +105,10 @@ class Panel
     {
         // TODO: Try to enforce clipping area!
         for (var subPanel of this.subPanels) {
-            if (subPanel.panel != null) {
+            if (subPanel != null) {
                 this.context.save();
                 this.context.translate(subPanel.x, subPanel.y);
-                subPanel.panel.paint();
+                subPanel.paint();
                 this.context.restore();
             }
         }
@@ -133,8 +141,8 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
-            this.updateFocus(subPanel.panel);
-            subPanel.panel.mouseDown(x - subPanel.x, y - subPanel.y);
+            this.updateFocus(subPanel);
+            subPanel.mouseDown(x - subPanel.x, y - subPanel.y);
         }
     }
 
@@ -145,8 +153,8 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
-            this.updateFocus(subPanel.panel);
-            subPanel.panel.mouseUp(x - subPanel.x, y - subPanel.y);
+            this.updateFocus(subPanel);
+            subPanel.mouseUp(x - subPanel.x, y - subPanel.y);
         }
     }
 
@@ -157,8 +165,8 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
-            this.updateFocus(subPanel.panel);
-            subPanel.panel.mouseMove(x - subPanel.x, y - subPanel.y);
+            this.updateFocus(subPanel);
+            subPanel.mouseMove(x - subPanel.x, y - subPanel.y);
         }
     }
 
@@ -169,8 +177,8 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
-            this.updateFocus(subPanel.panel);
-            subPanel.panel.wheelUp(x - subPanel.x, y - subPanel.y);
+            this.updateFocus(subPanel);
+            subPanel.wheelUp(x - subPanel.x, y - subPanel.y);
         }
     }
 
@@ -181,8 +189,8 @@ class Panel
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
-            this.updateFocus(subPanel.panel);
-            subPanel.panel.wheelDown(x - subPanel.x, y - subPanel.y);
+            this.updateFocus(subPanel);
+            subPanel.wheelDown(x - subPanel.x, y - subPanel.y);
         }
     }
 }
