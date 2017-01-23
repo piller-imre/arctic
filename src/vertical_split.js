@@ -20,7 +20,8 @@ class VerticalSplit extends Panel
      */
     setLeftPanel(panel)
     {
-        this.leftPanel = this.addSubPanel(panel);
+        this.addSubPanel(panel);
+        this.leftPanel = panel;
         // TODO: Resize the panel!
         // TODO: Check that the left panel did not set before!
     }
@@ -30,7 +31,8 @@ class VerticalSplit extends Panel
      */
     setRightPanel(panel)
     {
-        this.rightPanel = this.addSubPanel(panel);
+        this.addSubPanel(panel);
+        this.rightPanel = panel;
         // TODO: Resize the panel!
         // TODO: Check that the right panel did not set before!
     }
@@ -49,29 +51,26 @@ class VerticalSplit extends Panel
     updateSubPanelWidth()
     {
         if (this.leftPanel != null) {
-            this.leftPanel.x = 0;
-            this.leftPanel.y = 0;
-            this.leftPanel.panel.width = this.position - 3;
-            this.leftPanel.panel.height = this.height;
+            this.leftPanel.resize(this.x, this.y, this.position, this.height);
         }
 
         if (this.rightPanel != null) {
-            this.rightPanel.x = this.position + 3;
-            this.rightPanel.y = 0;
-            this.rightPanel.panel.width = this.width - this.position - 3;
-            this.rightPanel.panel.height = this.height;
+            this.rightPanel.resize(this.x + this.position, this.y, this.width - this.position, this.height);
         }
+
+        this.paint();
     }
 
     /**
      * Resize the split.
      */
-    resize(width, height)
+    resize(x, y, width, height)
     {
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
         this.updateSubPanelWidth();
-        this.paint();
     }
 
     /**
@@ -79,11 +78,17 @@ class VerticalSplit extends Panel
      */
     mouseDown(x, y)
     {
-        if (x >= this.position - 3 && x <= this.position + 3) {
+        let splitterX = this.x + this.position;
+        if (x >= splitterX - 5 && x <= splitterX + 5) {
             this.isDragged = true;
         }
+        else if (x < splitterX) {
+            this.updateFocus(this.leftPanel);
+            this.leftPanel.mouseDown(x, y);
+        }
         else {
-            Panel.prototype.mouseDown.call(this, x, y);
+            this.updateFocus(this.rightPanel);
+            this.rightPanel.mouseDown(x, y);
         }
     }
 
@@ -92,15 +97,22 @@ class VerticalSplit extends Panel
      */
     mouseMove(x, y)
     {
+        let splitterX = this.x + this.position;
         if (this.isDragged == true) {
-            if (x != this.position) {
-                this.position = x;
+            if (x != splitterX) {
+                this.position = x - this.x;
                 this.updateSubPanelWidth();
-                this.paint();
             }
         }
         else {
-            Panel.prototype.mouseDown.call(this, x, y);
+            if (x < splitterX) {
+                this.updateFocus(this.leftPanel);
+                this.leftPanel.mouseMove(x, y);
+            }
+            else {
+                this.updateFocus(this.rightPanel);
+                this.rightPanel.mouseMove(x, y);
+            }
         }
     }
 
@@ -109,11 +121,13 @@ class VerticalSplit extends Panel
      */
     mouseUp(x, y)
     {
-        if (this.isDragged == true) {
-            this.isDragged = false;
+        this.isDragged = false;
+        let splitterX = this.x + this.position;
+        if (x < splitterX) {
+            this.leftPanel.mouseUp(x, y);
         }
         else {
-            Panel.prototype.mouseDown.call(this, x, y);
+            this.rightPanel.mouseUp(x, y);
         }
     }
 }

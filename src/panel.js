@@ -25,8 +25,8 @@ class Panel
         if (context != null) {
             this.context = context;
             for (var subPanel of this.subPanels) {
-                if (subPanel.panel != null) {
-                    subPanel.panel.setContext(context);
+                if (subPanel != null) {
+                    subPanel.setContext(context);
                 }
             }
         }
@@ -53,19 +53,26 @@ class Panel
     }
 
     /**
+     * Check that the panel contains the given point or not.
+     */
+    contains(x, y)
+    {
+        if (x >= this.x && y >= this.y
+            && x < this.x + this.width && y < this.y + this.height) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Find subpanel under the cursor.
      */
     findSubPanel(x, y)
     {
         for (var subPanel of this.subPanels) {
-            var panel = subPanel.findSubPanel(x, y);
-            if (panel != null) {
-                return panel;
+            if (subPanel.contains(x, y)) {
+                return subPanel;
             }
-        }
-        if (x >= this.x && y >= this.y
-            && x < this.x + this.width && y < this.y + this.height) {
-            return this;
         }
         return null;
     }
@@ -104,12 +111,10 @@ class Panel
     paint()
     {
         // TODO: Try to enforce clipping area!
+        this.context.clearRect(this.x, this.y, this.width, this.height);
         for (var subPanel of this.subPanels) {
             if (subPanel != null) {
-                this.context.save();
-                this.context.translate(subPanel.x, subPanel.y);
                 subPanel.paint();
-                this.context.restore();
             }
         }
     }
@@ -136,13 +141,15 @@ class Panel
 
     /**
      * Handle mousedown event.
+     *
+     * Forward the event to the child elements in the rectangular area.
      */
     mouseDown(x, y)
     {
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
             this.updateFocus(subPanel);
-            subPanel.mouseDown(x - subPanel.x, y - subPanel.y);
+            subPanel.mouseDown(x, y);
         }
     }
 
@@ -154,7 +161,7 @@ class Panel
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
             this.updateFocus(subPanel);
-            subPanel.mouseUp(x - subPanel.x, y - subPanel.y);
+            subPanel.mouseUp(x, y);
         }
     }
 
@@ -166,7 +173,7 @@ class Panel
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
             this.updateFocus(subPanel);
-            subPanel.mouseMove(x - subPanel.x, y - subPanel.y);
+            subPanel.mouseMove(x, y);
         }
     }
 
@@ -178,7 +185,7 @@ class Panel
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
             this.updateFocus(subPanel);
-            subPanel.wheelUp(x - subPanel.x, y - subPanel.y);
+            subPanel.wheelUp(x, y);
         }
     }
 
@@ -190,7 +197,7 @@ class Panel
         var subPanel = this.findSubPanel(x, y);
         if (subPanel != null) {
             this.updateFocus(subPanel);
-            subPanel.wheelDown(x - subPanel.x, y - subPanel.y);
+            subPanel.wheelDown(x, y);
         }
     }
 }
