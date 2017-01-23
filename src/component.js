@@ -95,5 +95,12 @@ class Component extends Panel
     onWheelDown(x, y)
     {
     }
+
+    /**
+     * Handle a general message from an other component.
+     */
+    onMessage(message)
+    {
+    }
 }
 
