@@ -65,5 +65,35 @@ class Component extends Panel
     onMouseUp(x, y)
     {
     }
+
+    /**
+     * Forward mouse wheel up event to the component.
+     */
+    wheelUp(x, y)
+    {
+        this.onWheelUp(x - this.x, y - this.y);
+    }
+
+    /**
+     * Mouse wheel up event with local coordinates.
+     */
+    onWheelUp(x, y)
+    {
+    }
+
+    /**
+     * Forward mouse wheel down event to the component.
+     */
+    wheelDown(x, y)
+    {
+        this.onWheelDown(x - this.x, y - this.y);
+    }
+
+    /**
+     * Mouse wheel down event with local coordinates.
+     */
+    onWheelDown(x, y)
+    {
+    }
 }
 
