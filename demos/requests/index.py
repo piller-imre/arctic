@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+import json
 import math
 
 app = Flask(__name__)
@@ -10,8 +11,11 @@ def index():
 @app.route('/distance', methods=['POST'])
 def calc_distance():
     data = request.get_json()
-    print(data)
-    return 'The request has proceed!'
+    x = data['x']
+    y = data['y']
+    distance = math.sqrt(x*x + y*y)
+    result = {"distance": distance}
+    return json.dumps(result)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5432)

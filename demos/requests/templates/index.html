@@ -20,7 +20,7 @@
             {
                 var point = {"x": x, "y": y};
                 console.log("Send request ...");
-                postJSON("distance", point, this.showDistance);
+                postJSON("distance", point, app.showDistance);
             }
 
             /**
@@ -28,7 +28,8 @@
              */
             showDistance(data, status)
             {
-                console.log(JSON.stringify(data));
+                var distance = data["distance"];
+                console.log("distance = " + distance);
             }
         }
 
