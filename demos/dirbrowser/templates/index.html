@@ -1,0 +1,113 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='request.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='panel.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='component.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='frame.js') }}"></script>
+    <script type="text/javascript">
+        /**
+         * Browse the directory structure.
+         */
+        class Browser extends Component
+        {
+            constructor()
+            {
+                super();
+                this.directories = [];
+                this.subdirectories = [];
+
+                this.directories.push("alfa");
+                this.directories.push("beta");
+                this.directories.push("gamma");
+
+                this.subdirectories.push("a");
+                this.subdirectories.push("b");
+                this.subdirectories.push("c");
+
+                this.selectedIndex = 0;
+            }
+
+            paintBackground(context)
+            {
+                context.fillStyle = "black";
+                context.fillRect(0, 0, this.width, this.height);
+            }
+
+            paintSelection(context)
+            {
+                var y = (this.directories.length + this.selectedIndex) * 20;
+                context.fillStyle = "#444444";
+                context.fillRect(0, y, this.width, 20);
+            }
+
+            paintDirectories(context)
+            {
+                context.fillStyle = "white";
+                var y = 0;
+                for (let directory of this.directories) {
+                    context.fillText(directory, 0, y);
+                    y += 20;
+                }
+            }
+
+            paintSubDirectories(context)
+            {
+                context.fillStyle = "yellow";
+                var y = this.directories.length * 20;
+                for (let subdirectory of this.subdirectories) {
+                    context.fillText(subdirectory, 0, y);
+                    y += 20;
+                }
+            }
+
+            onPaint(context)
+            {
+                context.font = "16px Monospace";
+                context.textBaseline = "top";
+                this.paintBackground(context);
+                this.paintSelection(context);
+                this.paintDirectories(context);
+                this.paintSubDirectories(context);
+            }
+
+            keyDown(key)
+            {
+                switch (key.code)
+                {
+                case "KeyK":
+                    this.selectedIndex += 1;
+                    if (this.selectedIndex >= this.subdirectories.length) {
+                        this.selectedIndex = this.subdirectories.length - 1;
+                    }
+                    this.paint();
+                    break;
+                case "KeyL":
+                    this.selectedIndex -= 1;
+                    if (this.selectedIndex < 0) {
+                        this.selectedIndex = 0;
+                    }
+                    this.paint();
+                    break;
+                case "Semicolon":
+                    this.directories.pop();
+                    this.paint();
+                    break;
+                default:
+                    console.log(key);
+                }
+            }
+        }
+
+        var app = new Browser();
+    </script>
+</head>
+
+<body onload="onLoad()" onresize="onResize()">
+    <canvas id="canvas" />
+</body>
+
+</html>
+
