@@ -18,6 +18,7 @@
                 super();
                 this.directories = [];
                 this.subdirectories = [];
+                this.subdirOffset = 0;
                 this.selectedIndex = 0;
 
                 this.requireSubdirs();
@@ -25,7 +26,9 @@
 
             getSelectedName()
             {
-                return this.subdirectories[this.selectedIndex];
+                var index = this.subdirOffset + this.selectedIndex;
+                var name = this.subdirectories[index];
+                return name;
             }
 
             requireSubdirs()
@@ -48,6 +51,13 @@
                 var name = this.getSelectedName();
                 this.directories.push(name);
                 this.requireSubdirs();
+            }
+
+            countVisibleSubdirs()
+            {
+                let nVisibleLines = Math.floor(this.height / 20);
+                let nVisibleSubdirs = nVisibleLines - this.directories.length;
+                return nVisibleSubdirs;
             }
 
             paintBackground(context)
@@ -77,8 +87,12 @@
             {
                 context.fillStyle = "yellow";
                 var y = this.directories.length * 20;
-                for (let subdirectory of this.subdirectories) {
+                var index = this.subdirOffset;
+                let nVisibleSubdirs = this.countVisibleSubdirs();
+                while (index < this.subdirectories.length && y < this.height) {
+                    var subdirectory = this.subdirectories[index];
                     context.fillText(subdirectory, 0, y);
+                    index += 1;
                     y += 20;
                 }
             }
@@ -96,7 +110,38 @@
             listDirectories(data, status)
             {
                 this.subdirectories = data["directories"];
+                this.subdirOffset = 0;
                 this.selectedIndex = 0;
+                this.paint();
+            }
+
+            moveDown()
+            {
+                this.selectedIndex += 1;
+                let index = this.subdirOffset + this.selectedIndex;
+                if (index < this.subdirectories.length) {
+                    let nVisibleSubdirs = this.countVisibleSubdirs();
+                    if (this.selectedIndex >= nVisibleSubdirs) {
+                        this.subdirOffset += 1;
+                        this.selectedIndex = nVisibleSubdirs - 1;
+                    }
+                    this.paint();
+                }
+                else {
+                    this.selectedIndex -= 1;
+                }
+            }
+
+            moveUp()
+            {
+                this.selectedIndex -= 1;
+                if (this.selectedIndex < 0) {
+                    this.selectedIndex = 0;
+                    this.subdirOffset -= 1;
+                    if (this.subdirOffset < 0) {
+                        this.subdirOffset = 0;
+                    }
+                }
                 this.paint();
             }
 
@@ -105,18 +150,10 @@
                 switch (key.code)
                 {
                 case "KeyK":
-                    this.selectedIndex += 1;
-                    if (this.selectedIndex >= this.subdirectories.length) {
-                        this.selectedIndex = this.subdirectories.length - 1;
-                    }
-                    this.paint();
+                    this.moveDown();
                     break;
                 case "KeyL":
-                    this.selectedIndex -= 1;
-                    if (this.selectedIndex < 0) {
-                        this.selectedIndex = 0;
-                    }
-                    this.paint();
+                    this.moveUp();
                     break;
                 case "Semicolon":
                     this.selectSubdirectory();
@@ -128,6 +165,16 @@
                 default:
                     console.log(key);
                 }
+            }
+
+            onWheelDown(x, y)
+            {
+                this.moveDown();
+            }
+
+            onWheelUp(x, y)
+            {
+                this.moveUp();
             }
         }
 
