@@ -18,16 +18,36 @@
                 super();
                 this.directories = [];
                 this.subdirectories = [];
-
-                this.directories.push("alfa");
-                this.directories.push("beta");
-                this.directories.push("gamma");
-
-                this.subdirectories.push("a");
-                this.subdirectories.push("b");
-                this.subdirectories.push("c");
-
                 this.selectedIndex = 0;
+
+                this.requireSubdirs();
+            }
+
+            getSelectedName()
+            {
+                return this.subdirectories[this.selectedIndex];
+            }
+
+            requireSubdirs()
+            {
+                var path = this.calcCurrentPath();
+                postJSON("directories", {"path": path}, this, this.listDirectories);
+            }
+
+            calcCurrentPath()
+            {
+                var path = "/";
+                for (let directory of this.directories) {
+                    path += directory + "/";
+                }
+                return path;
+            }
+
+            selectSubdirectory()
+            {
+                var name = this.getSelectedName();
+                this.directories.push(name);
+                this.requireSubdirs();
             }
 
             paintBackground(context)
@@ -73,6 +93,13 @@
                 this.paintSubDirectories(context);
             }
 
+            listDirectories(data, status)
+            {
+                this.subdirectories = data["directories"];
+                this.selectedIndex = 0;
+                this.paint();
+            }
+
             keyDown(key)
             {
                 switch (key.code)
@@ -92,8 +119,11 @@
                     this.paint();
                     break;
                 case "Semicolon":
+                    this.selectSubdirectory();
+                    break;
+                case "KeyJ":
                     this.directories.pop();
-                    this.paint();
+                    this.requireSubdirs();
                     break;
                 default:
                     console.log(key);
