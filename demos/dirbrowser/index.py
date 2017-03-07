@@ -11,6 +11,13 @@ def get_subdirectories(path):
     return subdirs
 
 
+def get_files(path):
+    """Get the list of the files at the given directory."""
+    files = [name for name in os.listdir(path) if os.path.isfile(path + name)]
+    files.sort()
+    return files
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -21,10 +28,11 @@ def directories():
     data = request.get_json()
     path = data['path']
     subdirs = get_subdirectories(path)
-    result = {"directories": subdirs}
+    files = get_files(path)
+    result = {"directories": subdirs, "files": files}
     return json.dumps(result)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5432)
+    app.run(debug=True, port=5050)
 

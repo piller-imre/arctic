@@ -3,19 +3,22 @@
 <head>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='request.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='panel.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='component.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='frame.js') }}"></script>
+
+    {% for dependency in ['request', 'messenger', 'panel', 'component', 'vertical_split', 'frame'] %}
+    <script type="text/javascript" src="{{ url_for('static', filename='{}.js'.format(dependency)) }}"></script>
+    {% endfor %}
+
     <script type="text/javascript">
+
         /**
          * Browse the directory structure.
          */
-        class Browser extends Component
+        class DirectoryBrowser extends Component
         {
             constructor()
             {
                 super();
+                messenger.register("directory-browser", this);
                 this.directories = [];
                 this.subdirectories = [];
                 this.subdirOffset = 0;
@@ -112,6 +115,9 @@
                 this.subdirectories = data["directories"];
                 this.subdirOffset = 0;
                 this.selectedIndex = 0;
+
+                messenger.send("file-browser", data["files"]);
+
                 this.paint();
             }
 
@@ -147,8 +153,7 @@
 
             keyDown(key)
             {
-                switch (key.code)
-                {
+                switch (key.code) {
                 case "KeyK":
                     this.moveDown();
                     break;
@@ -178,7 +183,147 @@
             }
         }
 
-        var app = new Browser();
+        /**
+         * Browse the files in the current directory.
+         */
+        class FileBrowser extends Component
+        {
+            constructor()
+            {
+                super();
+                messenger.register("file-browser", this);
+                this.files = [];
+                this.fileOffset = 0;
+                this.selectedIndex = 0;
+            }
+
+            countVisibleFiles()
+            {
+                let nVisibleFiles = Math.floor(this.height / 20);
+                return nVisibleFiles;
+            }
+
+            paintBackground(context)
+            {
+                context.fillStyle = "#223344";
+                context.fillRect(0, 0, this.width, this.height);
+            }
+
+            paintSelection(context)
+            {
+                var y = this.selectedIndex * 20;
+                context.fillStyle = "#444444";
+                context.fillRect(0, y, this.width, 20);
+            }
+
+            paintFiles(context)
+            {
+                context.fillStyle = "white";
+                var y = 0;
+                var index = this.fileOffset;
+                let nVisibleFiles = this.countVisibleFiles();
+                while (index < this.files.length && y < this.height) {
+                    var file = this.files[index];
+                    context.fillText(file, 0, y);
+                    index += 1;
+                    y += 20;
+                }
+            }
+
+            onPaint(context)
+            {
+                context.font = "16px Monospace";
+                context.textBaseline = "top";
+                this.paintBackground(context);
+                this.paintSelection(context);
+                this.paintFiles(context);
+            }
+
+            onMessage(message)
+            {
+                this.files = message;
+                this.fileOffset = 0;
+                this.selectedIndex = 0;
+                this.paint();
+            }
+
+            moveDown()
+            {
+                this.selectedIndex += 1;
+                let index = this.fileOffset + this.selectedIndex;
+                if (index < this.files.length) {
+                    let nVisibleFiles = this.countVisibleFiles();
+                    if (this.selectedIndex >= nVisibleFiles) {
+                        this.fileOffset += 1;
+                        this.selectedIndex = nVisibleFiles - 1;
+                    }
+                    this.paint();
+                }
+                else {
+                    this.selectedIndex -= 1;
+                }
+            }
+
+            moveUp()
+            {
+                this.selectedIndex -= 1;
+                if (this.selectedIndex < 0) {
+                    this.selectedIndex = 0;
+                    this.fileOffset -= 1;
+                    if (this.fileOffset < 0) {
+                        this.fileOffset = 0;
+                    }
+                }
+                this.paint();
+            }
+
+            keyDown(key)
+            {
+                switch (key.code) {
+                case "KeyK":
+                    this.moveDown();
+                    break;
+                case "KeyL":
+                    this.moveUp();
+                    break;
+                default:
+                    console.log(key);
+                }
+            }
+
+            onWheelDown(x, y)
+            {
+                this.moveDown();
+            }
+
+            onWheelUp(x, y)
+            {
+                this.moveUp();
+            }
+        }
+
+        /**
+         * Directory and file browser
+         */
+        class Browser extends Component
+        {
+            constructor()
+            {
+            }
+        }
+
+        var fileBrowser = new FileBrowser();
+        var directoryBrowser = new DirectoryBrowser();
+
+        var verticalSplit = new VerticalSplit(200);
+        verticalSplit.setLeftPanel(directoryBrowser);
+        verticalSplit.setRightPanel(fileBrowser);
+        var app = verticalSplit;
+
+        // var app = new DirectoryBrowser();
+        // var app = new FileBrowser();
+        // var app = new Browser();
+
     </script>
 </head>
 
